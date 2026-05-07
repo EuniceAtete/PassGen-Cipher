@@ -3,270 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passkey — Password Generator</title>
+<title>UV Ledger — Password Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="index.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h1>Passkey</h1>
-        <p class="subtitle">Generate a random password using your device's secure randomness.</p>
-      </div>
-      <svg class="lock-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="4" y="10.5" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M7.5 10.5V7.5C7.5 5.01 9.51 3 12 3C14.49 3 16.5 5.01 16.5 7.5V10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        <circle cx="12" cy="15.5" r="1.6" fill="currentColor"/>
-        <path d="M12 17.1V19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </div>
+  <!-- film-grain / UV scan texture, sits behind everything -->
+  <svg class="grain" aria-hidden="true">
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
 
-    <div class="output-box">
-      <span id="password-output" class="placeholder">Set your options and generate a password</span>
-      <button class="copy-btn" id="copy-btn" type="button" aria-label="Copy password" title="Copy">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/>
-          <path d="M6 15H4.5C3.67 15 3 14.33 3 13.5V4.5C3 3.67 3.67 3 4.5 3H13.5C14.33 3 15 3.67 15 4.5V6" stroke="currentColor" stroke-width="1.6"/>
+  <div class="glow glow-a" aria-hidden="true"></div>
+  <div class="glow glow-b" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="scan-sweep" aria-hidden="true"></div>
+
+    <header class="card-head">
+      <div class="brand">
+        <svg class="lamp-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3H16L14.5 9H9.5L8 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M9.5 9L7 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M14.5 9L17 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M6 21H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-      </button>
-    </div>
-
-    <div class="status-row">
-      <span id="copy-msg" aria-live="polite">Copied to clipboard</span>
-      <div class="strength" id="strength-wrap">
-        <div class="strength-bars" id="strength-bars">
-          <span></span><span></span><span></span><span></span>
-        </div>
-        <span id="strength-label">—</span>
+        <h1 class="wordmark" data-text="UV Ledger">UV Ledger</h1>
       </div>
-    </div>
+      <p class="subtitle">Passwords revealed only under the right light.</p>
+    </header>
 
-    <div class="field">
+    <section class="entry" aria-label="Generated password">
+      <div class="entry-label">
+        <span>Entry</span>
+        <span class="entry-tag">№ 0001</span>
+      </div>
+      <div class="output-box">
+        <span id="password-output" class="placeholder">Nothing revealed yet.</span>
+        <button class="copy-btn" id="copy-btn" type="button" aria-label="Copy password" title="Copy">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M6 15H4.5C3.67 15 3 14.33 3 13.5V4.5C3 3.67 3.67 3 4.5 3H13.5C14.33 3 15 3.67 15 4.5V6" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="status-row">
+        <span id="copy-msg" aria-live="polite">Copied to clipboard</span>
+        <div class="strength" id="strength-wrap">
+          <span class="strength-caption">Exposure</span>
+          <div class="strength-bars" id="strength-bars">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <span id="strength-label">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="field">
       <div class="field-label-row">
         <label for="length-slider">Length</label>
         <span id="length-value">16</span>
       </div>
       <input type="range" id="length-slider" min="8" max="32" value="16">
-    </div>
+    </section>
 
-    <div class="options">
+    <section class="options">
       <div class="toggle-row">
         <span class="label">Lowercase</span>
         <span class="hint">a–z</span>
-        <label class="switch">
+        <label class="vial">
           <input type="checkbox" id="opt-lowercase" checked>
-          <span class="track"></span>
-          <span class="thumb"></span>
+          <span class="vial-track"></span>
+          <span class="vial-fill"></span>
         </label>
       </div>
       <div class="toggle-row">
         <span class="label">Uppercase</span>
         <span class="hint">A–Z</span>
-        <label class="switch">
+        <label class="vial">
           <input type="checkbox" id="opt-uppercase" checked>
-          <span class="track"></span>
-          <span class="thumb"></span>
+          <span class="vial-track"></span>
+          <span class="vial-fill"></span>
         </label>
       </div>
       <div class="toggle-row">
         <span class="label">Numbers</span>
         <span class="hint">0–9</span>
-        <label class="switch">
+        <label class="vial">
           <input type="checkbox" id="opt-numbers" checked>
-          <span class="track"></span>
-          <span class="thumb"></span>
+          <span class="vial-track"></span>
+          <span class="vial-fill"></span>
         </label>
       </div>
       <div class="toggle-row">
         <span class="label">Symbols</span>
         <span class="hint">!@#$</span>
-        <label class="switch">
+        <label class="vial">
           <input type="checkbox" id="opt-symbols">
-          <span class="track"></span>
-          <span class="thumb"></span>
+          <span class="vial-track"></span>
+          <span class="vial-fill"></span>
         </label>
       </div>
-    </div>
+    </section>
 
     <p class="error-msg" id="error-msg">Turn on at least one character type.</p>
 
     <div class="actions">
-      <button class="primary" id="generate-btn" type="button">Generate password</button>
-      <button class="secondary" id="clear-btn" type="button">Clear</button>
+      <button class="primary" id="generate-btn" type="button">Reveal password</button>
+      <button class="secondary" id="clear-btn" type="button">Clear ledger</button>
     </div>
-  </div>
 
-  <script>
-    (function () {
-      var CHARSETS = {
-        lowercase: 'abcdefghijklmnopqrstuvwxyz',
-        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        numbers: '0123456789',
-        symbols: '!@#$%^&*()-_=+[]{}?'
-      };
-
-      var lengthSlider = document.getElementById('length-slider');
-      var lengthValue = document.getElementById('length-value');
-      var output = document.getElementById('password-output');
-      var copyBtn = document.getElementById('copy-btn');
-      var copyMsg = document.getElementById('copy-msg');
-      var generateBtn = document.getElementById('generate-btn');
-      var clearBtn = document.getElementById('clear-btn');
-      var errorMsg = document.getElementById('error-msg');
-      var strengthBars = document.querySelectorAll('#strength-bars span');
-      var strengthLabel = document.getElementById('strength-label');
-      var copyTimer = null;
-
-      var toggles = {
-        lowercase: document.getElementById('opt-lowercase'),
-        uppercase: document.getElementById('opt-uppercase'),
-        numbers: document.getElementById('opt-numbers'),
-        symbols: document.getElementById('opt-symbols')
-      };
-
-      var currentPassword = '';
-
-      lengthSlider.addEventListener('input', function () {
-        lengthValue.textContent = lengthSlider.value;
-      });
-
-      // Cryptographically secure random integer in [0, max)
-      function secureRandomInt(max) {
-        var range = 256 - (256 % max);
-        var byte;
-        do {
-          byte = crypto.getRandomValues(new Uint8Array(1))[0];
-        } while (byte >= range);
-        return byte % max;
-      }
-
-      function secureShuffle(arr) {
-        for (var i = arr.length - 1; i > 0; i--) {
-          var j = secureRandomInt(i + 1);
-          var tmp = arr[i];
-          arr[i] = arr[j];
-          arr[j] = tmp;
-        }
-        return arr;
-      }
-
-      function activeCategories() {
-        return Object.keys(toggles).filter(function (key) {
-          return toggles[key].checked;
-        });
-      }
-
-      function generatePassword(length, categories) {
-        var pool = categories.map(function (key) { return CHARSETS[key]; }).join('');
-        var chars = [];
-
-        // Guarantee at least one character from each selected category
-        categories.forEach(function (key) {
-          var set = CHARSETS[key];
-          chars.push(set[secureRandomInt(set.length)]);
-        });
-
-        while (chars.length < length) {
-          chars.push(pool[secureRandomInt(pool.length)]);
-        }
-
-        return secureShuffle(chars).join('');
-      }
-
-      function poolSize(categories) {
-        return categories.reduce(function (sum, key) {
-          return sum + CHARSETS[key].length;
-        }, 0);
-      }
-
-      function updateStrength(length, categories) {
-        var pool = poolSize(categories);
-        var bits = pool > 0 ? Math.round(length * Math.log2(pool)) : 0;
-
-        var level = 0;
-        var label = 'Too weak';
-        if (bits >= 100) { level = 4; label = 'Very strong'; }
-        else if (bits >= 70) { level = 3; label = 'Strong'; }
-        else if (bits >= 45) { level = 2; label = 'Fair'; }
-        else if (bits > 0) { level = 1; label = 'Weak'; }
-
-        var colors = ['', 'var(--red)', 'var(--amber)', 'var(--mint)', 'var(--mint)'];
-
-        strengthBars.forEach(function (bar, i) {
-          bar.style.background = i < level ? colors[level] : 'rgba(255,255,255,0.08)';
-        });
-        strengthLabel.textContent = bits > 0 ? label + ' · ' + bits + ' bits' : '—';
-      }
-
-      function resetStrength() {
-        strengthBars.forEach(function (bar) {
-          bar.style.background = 'rgba(255,255,255,0.08)';
-        });
-        strengthLabel.textContent = '—';
-      }
-
-      function showCopyFeedback() {
-        clearTimeout(copyTimer);
-        copyMsg.classList.add('show');
-        copyTimer = setTimeout(function () {
-          copyMsg.classList.remove('show');
-        }, 1800);
-      }
-
-      function copyText(text) {
-        if (!text) return;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(showCopyFeedback).catch(fallbackCopy);
-        } else {
-          fallbackCopy();
-        }
-        function fallbackCopy() {
-          var temp = document.createElement('textarea');
-          temp.value = text;
-          temp.style.position = 'fixed';
-          temp.style.opacity = '0';
-          document.body.appendChild(temp);
-          temp.select();
-          try { document.execCommand('copy'); showCopyFeedback(); } catch (e) {}
-          document.body.removeChild(temp);
-        }
-      }
-
-      generateBtn.addEventListener('click', function () {
-        var categories = activeCategories();
-        if (categories.length === 0) {
-          errorMsg.classList.add('show');
-          return;
-        }
-        errorMsg.classList.remove('show');
-
-        var length = parseInt(lengthSlider.value, 10);
-        currentPassword = generatePassword(length, categories);
-
-        output.textContent = currentPassword;
-        output.classList.remove('placeholder');
-
-        updateStrength(length, categories);
-        copyText(currentPassword);
-      });
-
-      copyBtn.addEventListener('click', function () {
-        copyText(currentPassword);
-      });
-
-      clearBtn.addEventListener('click', function () {
-        currentPassword = '';
-        output.textContent = 'Set your options and generate a password';
-        output.classList.add('placeholder');
-        copyMsg.classList.remove('show');
-        errorMsg.classList.remove('show');
-        resetStrength();
-      });
-    })();
-  </script>
+    <div class="stamp" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="1"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4"/>
+        <text x="50" y="46" text-anchor="middle" class="stamp-text">UV·16</text>
+        <text x="50" y="60" text-anchor="middle" class="stamp-sub">LEDGER</text>
+      </svg>
+    </div>
+  </main>
 
 </body>
 </html>
