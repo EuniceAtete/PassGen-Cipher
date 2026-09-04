@@ -20,4 +20,4 @@ A simple web project that combines a password generator with a small cipher-crac
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/your-repository.git
+git clone (https://github.com/EuniceAtete/PassGen-Cipher.git)
